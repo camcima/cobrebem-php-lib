@@ -33,6 +33,13 @@ class Gateway
      * @var string 
      */
     protected $gatewayUrl;
+    
+    /**
+     * Gateway Helper
+     * 
+     * @var \Cobrebem\Service\GatewayHelper 
+     */
+    protected $gatewayHelper;
 
     /**
      * Constructor
@@ -48,6 +55,7 @@ class Gateway
         }
         $this->username = $username;
         $this->setGatewayUrl($environment);
+        $this->gatewayHelper = new GatewayHelper();
     }
 
     /**
@@ -60,7 +68,7 @@ class Gateway
      */
     public function authorize(AuthorizationRequest $authorizationRequest)
     {
-        $parameters = $this->buildAuthorizationRequestArray($authorizationRequest);
+        $parameters = $this->gatewayHelper->buildAuthorizationRequestArray($authorizationRequest);
         return new AuthorizationResponse();
     }
 
@@ -78,16 +86,5 @@ class Gateway
         $this->envUrls[Environment::BACKUP_SERVER] = 'https://backup.aprovafacil.com/cgi-bin/APFW/<usuario>/';
         $this->envUrls[Environment::BACKUP_SERVER_2] = 'https://backup2.aprovafacil.com/cgi-bin/APFW/<usuario>/';
         $this->envUrls[Environment::TEST_SERVER] = 'https://teste.aprovafacil.com/cgi-bin/APFW/<usuario>/';
-    }
-
-    /**
-     * Build Authorization Request Parameters Array
-     * 
-     * @param \Cobrebem\Entity\CreditCard\Authorization\Request $authorizationRequest
-     * @return array
-     */
-    protected function buildAuthorizationRequestArray(AuthorizationRequest $authorizationRequest)
-    {
-        return array();
     }
 }
