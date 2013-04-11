@@ -5,6 +5,8 @@ namespace Cobrebem\Service;
 use Cobrebem\Entity\CreditCard\Authorization\Request as AuthorizationRequest;
 use Cobrebem\Entity\CreditCard\Authorization\Response as AuthorizationResponse;
 use Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest;
+use Cobrebem\Entity\CreditCard\Capture\Request as CaptureRequest;
+use Cobrebem\Entity\CreditCard\Capture\Response as CaptureResponse;
 use Cobrebem\Entity\Environment;
 use Cobrebem\Entity\CommunicationError;
 use Guzzle\Http\Client;
@@ -170,6 +172,60 @@ class Gateway
         $authorizationResponse->setNacionalidadeEmissor((string) $resultadoApc->NacionalidadeEmissor);
 
         return $authorizationResponse;
+    }
+
+    /**
+     * Fazer chamada recorrente para transação de captura de cartão de crédito
+     * 
+     * Capture Request
+     * 
+     * @param \Cobrebem\Entity\CreditCard\Capture\Request $captureRequest
+     * @return \Cobrebem\Entity\CreditCard\Capture\Response
+     */
+    public function capture(CaptureRequest $captureRequest)
+    {
+        $captureResponse = new CaptureResponse();
+        $httpClient = $this->getHttpClient($this->gatewayUrl);
+
+        $parameters = $this->gatewayHelper->buildCaptureRequestArray($captureRequest);
+
+        $httpRequest = $httpClient->post(static::URI_CAPTURE)->addPostFields($parameters);
+        try {
+            $httpResponse = $httpRequest->send();
+        } catch (\Exception $e) {
+            $captureResponse->setSuccess(false);
+            $captureResponse->setHasCommunicationError(true);
+            $captureResponse->setCommunicationErrorMessage(CommunicationError::CONNECTION_ERROR);
+
+            return $captureResponse;
+        }
+
+        $captureResponse->setRawResponse($httpResponse->getMessage());
+        try {
+            $resultadoCap = $httpResponse->xml();
+        } catch (RuntimeException $e) {
+            $captureResponse->setSuccess(false);
+            $captureResponse->setHasCommunicationError(true);
+            $captureResponse->setCommunicationErrorMessage(CommunicationError::INVALID_XML_RESPONSE);
+
+            return $captureResponse;
+        }
+
+        $resultadoSolicitacaoConfirmacao = trim((string) $resultadoCap->ResultadoSolicitacaoConfirmacao);
+
+        if (substr(strtolower($resultadoSolicitacaoConfirmacao), 0, 10) == 'confirmado') {
+            $captureResponse->setSuccess(true);
+            $parts = explode('%20', $resultadoSolicitacaoConfirmacao);
+            $transacao = $parts[1];
+            $captureResponse->setTransacao($transacao);
+        } else {
+            $captureResponse->setSuccess(false);
+            $captureResponse->setMensagemErro($resultadoSolicitacaoConfirmacao);
+        }
+        $captureResponse->setComprovanteAdministradora((string) $resultadoCap->ComprovanteAdministradora);
+
+
+        return $captureResponse;
     }
 
     /**

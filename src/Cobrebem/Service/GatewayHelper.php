@@ -5,6 +5,7 @@ namespace Cobrebem\Service;
 use Cobrebem\Entity\CreditCard\Authorization\Request as AuthorizationRequest;
 use Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest;
 use Cobrebem\Entity\CreditCard\Authorization\SchedulingRequest;
+use Cobrebem\Entity\CreditCard\Capture\Request as CaptureRequest;
 
 /**
  * Gateway Helper
@@ -137,6 +138,28 @@ class GatewayHelper
         );
         $this->insertParameter(
             $parameters, 'ParcelamentoAdministradora', $recurrentRequest->getParcelamentoAdministradora(), false
+        );
+
+        return $parameters;
+    }
+
+    /**
+     * Build Capture Request Parameters Array
+     * 
+     * @param \Cobrebem\Entity\CreditCard\Capture\Request $captureRequest
+     * @return array
+     */
+    public function buildCaptureRequestArray(CaptureRequest $captureRequest)
+    {
+        $parameters = array();
+        $this->insertParameter(
+            $parameters, 'NumeroDocumento', $captureRequest->getNumeroDocumento(), false
+        );
+        $this->insertParameter(
+            $parameters, 'Transacao', $captureRequest->getTransacao()
+        );
+        $this->insertParameter(
+            $parameters, 'ValorDocumento', $this->formatCurrency($captureRequest->getValorDocumento())
         );
 
         return $parameters;
