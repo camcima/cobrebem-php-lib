@@ -10,20 +10,6 @@ namespace Cobrebem\Entity\CreditCard\Authorization;
  */
 class Request
 {
-    // Supported Credit Card Brands
-    const BRAND_VISA = 'VISA';
-    const BRAND_MASTERCARD = 'MASTERCARD';
-    const BRAND_DINERS = 'DINERS';
-    const BRAND_AMEX = 'AMEX';
-    const BRAND_HIPERCARD = 'HIPERCARD';
-    const BRAND_JCB = 'JCB';
-    const BRAND_SOROCRED = 'SOROCRED';
-    const BRAND_AURA = 'AURA';
-
-    // Supported Acquirers
-    const ACQUIRER_REDERCARD = 'REDECARD';
-    const ACQUIRER_CIELO = 'CIELO';
-
     /**
      * Número do Documento
      * 
@@ -48,7 +34,7 @@ class Request
      * 
      * @var float 
      */
-    protected $ValorDocumento;
+    protected $valorDocumento;
 
     /**
      * Valor de Entrada
@@ -252,7 +238,7 @@ class Request
      * @var string 
      */
     protected $moeda;
-    
+
     /**
      * Agendamento da Transação
      * 
@@ -297,7 +283,7 @@ class Request
      */
     public function getValorDocumento()
     {
-        return $this->ValorDocumento;
+        return $this->valorDocumento;
     }
 
     /**
@@ -308,7 +294,7 @@ class Request
      */
     public function setValorDocumento($ValorDocumento)
     {
-        $this->ValorDocumento = $ValorDocumento;
+        $this->valorDocumento = $ValorDocumento;
         return $this;
     }
 
@@ -671,7 +657,7 @@ class Request
         $this->moeda = $moeda;
         return $this;
     }
-    
+
     /**
      * Get Agendamento da Transação
      * 
@@ -695,7 +681,4 @@ class Request
         $this->schedulingRequest = $schedulingRequest;
         return $this;
     }
-
-
-
 }

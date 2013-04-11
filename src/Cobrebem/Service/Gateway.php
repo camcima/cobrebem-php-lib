@@ -4,6 +4,7 @@ namespace Cobrebem\Service;
 
 use Cobrebem\Entity\CreditCard\Authorization\Request as AuthorizationRequest;
 use Cobrebem\Entity\CreditCard\Authorization\Response as AuthorizationResponse;
+use Cobrebem\Entity\Environment;
 
 /**
  * Gateway Service
@@ -12,12 +13,6 @@ use Cobrebem\Entity\CreditCard\Authorization\Response as AuthorizationResponse;
  */
 class Gateway
 {
-    // Environment Constants
-    const ENV_MAIN_SERVER = 'MAIN_SERVER';
-    const ENV_BACKUP_SERVER = 'BACKUP_SERVER';
-    const ENV_BACKUP_SERVER_2 = 'BACKUP_SERVER_2';
-    const ENV_TEST_SERVER = 'TEST_SERVER';
-
     /**
      * Environment URLs
      * 
@@ -43,7 +38,7 @@ class Gateway
      * Constructor
      * 
      * @param string $username Username
-     * @param string $environment Gateway Environment (use Gateway::ENV_* constants)
+     * @param string $environment Gateway Environment (use Environment Entity constants)
      */
     public function __construct($username, $environment)
     {
@@ -79,10 +74,10 @@ class Gateway
 
     protected function setEnvironmentUrls()
     {
-        $this->envUrls[static::ENV_MAIN_SERVER] = 'https://www.aprovafacil.com/cgi-bin/APFW/<usuario>/';
-        $this->envUrls[static::ENV_BACKUP_SERVER] = 'https://backup.aprovafacil.com/cgi-bin/APFW/<usuario>/';
-        $this->envUrls[static::ENV_BACKUP_SERVER_2] = 'https://backup2.aprovafacil.com/cgi-bin/APFW/<usuario>/';
-        $this->envUrls[static::ENV_TEST_SERVER] = 'https://teste.aprovafacil.com/cgi-bin/APFW/<usuario>/';
+        $this->envUrls[Environment::MAIN_SERVER] = 'https://www.aprovafacil.com/cgi-bin/APFW/<usuario>/';
+        $this->envUrls[Environment::BACKUP_SERVER] = 'https://backup.aprovafacil.com/cgi-bin/APFW/<usuario>/';
+        $this->envUrls[Environment::BACKUP_SERVER_2] = 'https://backup2.aprovafacil.com/cgi-bin/APFW/<usuario>/';
+        $this->envUrls[Environment::TEST_SERVER] = 'https://teste.aprovafacil.com/cgi-bin/APFW/<usuario>/';
     }
 
     /**
@@ -95,5 +90,4 @@ class Gateway
     {
         return array();
     }
-
 }

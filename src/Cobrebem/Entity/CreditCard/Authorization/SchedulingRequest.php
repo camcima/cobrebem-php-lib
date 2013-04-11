@@ -272,5 +272,4 @@ class SchedulingRequest
         $this->parcelamentoAdministradora = $parcelamentoAdministradora;
         return $this;
     }
-
 }

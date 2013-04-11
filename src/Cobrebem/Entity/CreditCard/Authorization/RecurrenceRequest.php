@@ -156,5 +156,4 @@ class RecurrenceRequest
         $this->parcelamentoAdministradora = $parcelamentoAdministradora;
         return $this;
     }
-
 }
