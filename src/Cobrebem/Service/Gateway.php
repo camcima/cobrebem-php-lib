@@ -33,7 +33,7 @@ class Gateway
      * @var string 
      */
     protected $gatewayUrl;
-    
+
     /**
      * Gateway Helper
      * 
@@ -72,6 +72,12 @@ class Gateway
         return new AuthorizationResponse();
     }
 
+    /**
+     * Set Cobrebem Gateway URL
+     * 
+     * @param string $environment
+     * @throws \InvalidArgumentException
+     */
     protected function setGatewayUrl($environment)
     {
         if (!in_array($environment, array_keys($this->envUrls))) {
@@ -80,6 +86,9 @@ class Gateway
         $this->gatewayUrl = str_replace('<usuario>', $this->username, $this->envUrls[$environment]);
     }
 
+    /**
+     * Set Environment URLs
+     */
     protected function setEnvironmentUrls()
     {
         $this->envUrls[Environment::MAIN_SERVER] = 'https://www.aprovafacil.com/cgi-bin/APFW/<usuario>/';
