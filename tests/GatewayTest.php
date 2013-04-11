@@ -18,6 +18,7 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
         $gateway = new Gateway('username', Environment::TEST_SERVER);
         $authorizationRequest = new AuthorizationRequest();
         $result = $gateway->authorize($authorizationRequest);
+        var_dump($result);
         $this->assertInstanceOf('\Cobrebem\Entity\CreditCard\Authorization\Response', $result);
     }
 

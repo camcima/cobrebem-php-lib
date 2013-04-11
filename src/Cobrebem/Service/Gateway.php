@@ -5,6 +5,9 @@ namespace Cobrebem\Service;
 use Cobrebem\Entity\CreditCard\Authorization\Request as AuthorizationRequest;
 use Cobrebem\Entity\CreditCard\Authorization\Response as AuthorizationResponse;
 use Cobrebem\Entity\Environment;
+use Cobrebem\Entity\CommunicationError;
+use Guzzle\Http\Client;
+use Guzzle\Common\Exception\RuntimeException;
 
 /**
  * Gateway Service
@@ -13,6 +16,12 @@ use Cobrebem\Entity\Environment;
  */
 class Gateway
 {
+    /**
+     * URI constants
+     */
+    const URI_AUTHORIZATION = 'APC';
+    const URI_CAPTURE = 'CAP';
+
     /**
      * Environment URLs
      * 
@@ -68,8 +77,46 @@ class Gateway
      */
     public function authorize(AuthorizationRequest $authorizationRequest)
     {
+        $authorizationResponse = new AuthorizationResponse();
+        $httpClient = $this->getHttpClient($this->gatewayUrl);
+
         $parameters = $this->gatewayHelper->buildAuthorizationRequestArray($authorizationRequest);
-        return new AuthorizationResponse();
+
+        $httpRequest = $httpClient->post(static::URI_AUTHORIZATION)->addPostFields($parameters);
+        try {
+            $httpResponse = $httpRequest->send();
+        } catch (\Exception $e) {
+            $authorizationResponse->setTransacaoAprovada(false);
+            $authorizationResponse->setHasCommunicationError(true);
+            $authorizationResponse->setCommunicationErrorMessage(CommunicationError::CONNECTION_ERROR);
+
+            return $authorizationResponse;
+        }
+
+        $authorizationResponse->setRawResponse($httpResponse->getMessage());
+        try {
+            $resultadoApc = $httpResponse->xml();
+        } catch (RuntimeException $e) {
+            $authorizationResponse->setTransacaoAprovada(false);
+            $authorizationResponse->setHasCommunicationError(true);
+            $authorizationResponse->setCommunicationErrorMessage(CommunicationError::INVALID_XML_RESPONSE);
+
+            return $authorizationResponse;
+        }
+
+        $transacaoAprovada = trim(strtolower((string) $resultadoApc->TransacaoAprovada));
+        $authorizationResponse->setTransacaoAprovada(($transacaoAprovada == 'true') ? true : false);
+        $authorizationResponse->setResultadoSolicitacaoAprovacao((string) $resultadoApc->ResultadoSolicitacaoAprovacao);
+        $authorizationResponse->setCodigoAutorizacao((string) $resultadoApc->CodigoAutorizacao);
+        $authorizationResponse->setTransacao((string) $resultadoApc->Transacao);
+        $authorizationResponse->setCartaoMascarado((string) $resultadoApc->CartaoMascarado);
+        $authorizationResponse->setNumeroDocumento((string) $resultadoApc->NumeroDocumento);
+        $authorizationResponse->setAdquirente((string) $resultadoApc->Adquirente);
+        $authorizationResponse->setNumeroSequencialUnico((string) $resultadoApc->NumeroSequencialUnico);
+        $authorizationResponse->setComprovanteAdministradora((string) $resultadoApc->ComprovanteAdministradora);
+        $authorizationResponse->setNacionalidadeEmissor((string) $resultadoApc->NacionalidadeEmissor);
+
+        return $authorizationResponse;
     }
 
     /**
@@ -96,4 +143,37 @@ class Gateway
         $this->envUrls[Environment::BACKUP_SERVER_2] = 'https://backup2.aprovafacil.com/cgi-bin/APFW/<usuario>/';
         $this->envUrls[Environment::TEST_SERVER] = 'https://teste.aprovafacil.com/cgi-bin/APFW/<usuario>/';
     }
+
+    /**
+     * Get HTTP client
+     * 
+     * @param string $baseUrl
+     * @return \Guzzle\Http\Client
+     */
+    protected function getHttpClient($baseUrl)
+    {
+        $options = array();
+        if ($this->isWindows()) {
+            $options['curl.options']['CURLOPT_SSL_VERIFYPEER'] = false;
+        }
+
+        $client = new Client($baseUrl, $options);
+
+        return $client;
+    }
+
+    /**
+     * Is this application running on Windows?
+     * 
+     * @return boolean
+     */
+    protected function isWindows()
+    {
+        if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
