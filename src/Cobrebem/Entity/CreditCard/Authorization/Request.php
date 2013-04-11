@@ -251,7 +251,7 @@ class Request
     protected $schedulingRequest;
 
     /**
-     * Get Numero do Documento
+     * Get Número do Documento
      * 
      * Company Order ID
      * 
@@ -263,7 +263,7 @@ class Request
     }
 
     /**
-     * Set Numero do Documento
+     * Set Número do Documento
      * 
      * @param string $numeroDocumento Company Order ID (up to 50 characters)
      * @return \Cobrebem\Entity\CreditCard\Authorization\Request

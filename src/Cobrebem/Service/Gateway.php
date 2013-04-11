@@ -4,6 +4,7 @@ namespace Cobrebem\Service;
 
 use Cobrebem\Entity\CreditCard\Authorization\Request as AuthorizationRequest;
 use Cobrebem\Entity\CreditCard\Authorization\Response as AuthorizationResponse;
+use Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest;
 use Cobrebem\Entity\Environment;
 use Cobrebem\Entity\CommunicationError;
 use Guzzle\Http\Client;
@@ -81,6 +82,58 @@ class Gateway
         $httpClient = $this->getHttpClient($this->gatewayUrl);
 
         $parameters = $this->gatewayHelper->buildAuthorizationRequestArray($authorizationRequest);
+
+        $httpRequest = $httpClient->post(static::URI_AUTHORIZATION)->addPostFields($parameters);
+        try {
+            $httpResponse = $httpRequest->send();
+        } catch (\Exception $e) {
+            $authorizationResponse->setTransacaoAprovada(false);
+            $authorizationResponse->setHasCommunicationError(true);
+            $authorizationResponse->setCommunicationErrorMessage(CommunicationError::CONNECTION_ERROR);
+
+            return $authorizationResponse;
+        }
+
+        $authorizationResponse->setRawResponse($httpResponse->getMessage());
+        try {
+            $resultadoApc = $httpResponse->xml();
+        } catch (RuntimeException $e) {
+            $authorizationResponse->setTransacaoAprovada(false);
+            $authorizationResponse->setHasCommunicationError(true);
+            $authorizationResponse->setCommunicationErrorMessage(CommunicationError::INVALID_XML_RESPONSE);
+
+            return $authorizationResponse;
+        }
+
+        $transacaoAprovada = trim(strtolower((string) $resultadoApc->TransacaoAprovada));
+        $authorizationResponse->setTransacaoAprovada(($transacaoAprovada == 'true') ? true : false);
+        $authorizationResponse->setResultadoSolicitacaoAprovacao((string) $resultadoApc->ResultadoSolicitacaoAprovacao);
+        $authorizationResponse->setCodigoAutorizacao((string) $resultadoApc->CodigoAutorizacao);
+        $authorizationResponse->setTransacao((string) $resultadoApc->Transacao);
+        $authorizationResponse->setCartaoMascarado((string) $resultadoApc->CartaoMascarado);
+        $authorizationResponse->setNumeroDocumento((string) $resultadoApc->NumeroDocumento);
+        $authorizationResponse->setAdquirente((string) $resultadoApc->Adquirente);
+        $authorizationResponse->setNumeroSequencialUnico((string) $resultadoApc->NumeroSequencialUnico);
+        $authorizationResponse->setComprovanteAdministradora((string) $resultadoApc->ComprovanteAdministradora);
+        $authorizationResponse->setNacionalidadeEmissor((string) $resultadoApc->NacionalidadeEmissor);
+
+        return $authorizationResponse;
+    }
+
+    /**
+     * Fazer chamada recorrente para transação de autorização de cartão de crédito
+     * 
+     * Recurrent Approval Request
+     * 
+     * @param \Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest $recurrentRequest
+     * @return \Cobrebem\Entity\CreditCard\Authorization\Response
+     */
+    public function authorizeRecurrent(RecurrentRequest $recurrentRequest)
+    {
+        $authorizationResponse = new AuthorizationResponse();
+        $httpClient = $this->getHttpClient($this->gatewayUrl);
+
+        $parameters = $this->gatewayHelper->buildRecurrentAuthorizationRequestArray($recurrentRequest);
 
         $httpRequest = $httpClient->post(static::URI_AUTHORIZATION)->addPostFields($parameters);
         try {

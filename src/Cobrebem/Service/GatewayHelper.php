@@ -3,6 +3,7 @@
 namespace Cobrebem\Service;
 
 use Cobrebem\Entity\CreditCard\Authorization\Request as AuthorizationRequest;
+use Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest;
 use Cobrebem\Entity\CreditCard\Authorization\SchedulingRequest;
 
 /**
@@ -12,7 +13,6 @@ use Cobrebem\Entity\CreditCard\Authorization\SchedulingRequest;
  */
 class GatewayHelper
 {
-
     /**
      * Build Authorization Request Parameters Array
      * 
@@ -115,6 +115,34 @@ class GatewayHelper
     }
 
     /**
+     * Build Recurrent Authorization Request Parameters Array
+     * 
+     * @param \Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest $recurrentRequest
+     * @return array
+     */
+    public function buildRecurrentAuthorizationRequestArray(RecurrentRequest $recurrentRequest)
+    {
+        $parameters = array();
+        $this->insertParameter(
+            $parameters, 'NumeroDocumento', $recurrentRequest->getNumeroDocumento(), false
+        );
+        $this->insertParameter(
+            $parameters, 'ValorDocumento', $this->formatCurrency($recurrentRequest->getValorDocumento())
+        );
+        $this->insertParameter(
+            $parameters, 'QuantidadeParcelas', $this->formatInteger($recurrentRequest->getQuantidadeParcelas(), 2)
+        );
+        $this->insertParameter(
+            $parameters, 'TransacaoAnterior', $recurrentRequest->getTransacaoAnterior()
+        );
+        $this->insertParameter(
+            $parameters, 'ParcelamentoAdministradora', $recurrentRequest->getParcelamentoAdministradora(), false
+        );
+
+        return $parameters;
+    }
+
+    /**
      * Format Currency according to Cobrebem Standards
      * 
      * @param float $amount
@@ -211,4 +239,5 @@ class GatewayHelper
             $array[$key] = $value;
         }
     }
+
 }

@@ -3,11 +3,11 @@
 namespace Cobrebem\Entity\CreditCard\Authorization;
 
 /**
- * Authorization Recurrence Request
+ * Authorization Recurrent Request
  *
  * @author Carlos Cima
  */
-class RecurrenceRequest
+class RecurrentRequest
 {
     /**
      * Transação Anterior
@@ -62,6 +62,19 @@ class RecurrenceRequest
     protected $parcelamentoAdministradora;
 
     /**
+     * Número do Documento
+     * 
+     * Optional
+     * 
+     * Company Order ID
+     * 
+     * Formatting: up to 50 characters
+     * 
+     * @var string 
+     */
+    protected $numeroDocumento;
+
+    /**
      * Get Transação Anterior
      * 
      * Last Aprova Facil transaction ID
@@ -77,7 +90,7 @@ class RecurrenceRequest
      * Set Transação Anterior
      * 
      * @param string $transacaoAnterior Last Aprova Facil transaction ID
-     * @return \Cobrebem\Entity\CreditCard\Authorization\RecurrenceRequest
+     * @return \Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest
      */
     public function setTransacaoAnterior($transacaoAnterior)
     {
@@ -101,7 +114,7 @@ class RecurrenceRequest
      * Set Valor do Documento
      * 
      * @param float $ValorDocumento Transaction amount
-     * @return \Cobrebem\Entity\CreditCard\Authorization\RecurrenceRequest
+     * @return \Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest
      */
     public function setValorDocumento($ValorDocumento)
     {
@@ -125,7 +138,7 @@ class RecurrenceRequest
      * Set Quantidade de Parcelas
      * 
      * @param int $quantidadeParcelas Number of Installments
-     * @return \Cobrebem\Entity\CreditCard\Authorization\RecurrenceRequest
+     * @return \Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest
      */
     public function setQuantidadeParcelas($quantidadeParcelas)
     {
@@ -149,11 +162,36 @@ class RecurrenceRequest
      * Set Parcelamento Administradora
      * 
      * @param boolean $parcelamentoAdministradora Used to activate issuer installment
-     * @return \Cobrebem\Entity\CreditCard\Authorization\RecurrenceRequest
+     * @return \Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest
      */
     public function setParcelamentoAdministradora($parcelamentoAdministradora)
     {
         $this->parcelamentoAdministradora = $parcelamentoAdministradora;
         return $this;
     }
+
+    /**
+     * Get Número do Documento
+     * 
+     * Company Order ID
+     * 
+     * @return string
+     */
+    public function getNumeroDocumento()
+    {
+        return $this->numeroDocumento;
+    }
+
+    /**
+     * Set Número do Documento
+     * 
+     * @param string $numeroDocumento Company Order ID (up to 50 characters)
+     * @return \Cobrebem\Entity\CreditCard\Authorization\Request
+     */
+    public function setNumeroDocumento($numeroDocumento)
+    {
+        $this->numeroDocumento = $numeroDocumento;
+        return $this;
+    }
+
 }
