@@ -7,6 +7,8 @@ use Cobrebem\Entity\CreditCard\Authorization\Response as AuthorizationResponse;
 use Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest;
 use Cobrebem\Entity\CreditCard\Capture\Request as CaptureRequest;
 use Cobrebem\Entity\CreditCard\Capture\Response as CaptureResponse;
+use Cobrebem\Entity\CreditCard\Cancellation\Request as CancellationRequest;
+use Cobrebem\Entity\CreditCard\Cancellation\Response as CancellationResponse;
 use Cobrebem\Entity\Environment;
 use Cobrebem\Entity\CommunicationError;
 use Guzzle\Http\Client;
@@ -24,6 +26,7 @@ class Gateway
      */
     const URI_AUTHORIZATION = 'APC';
     const URI_CAPTURE = 'CAP';
+    const URI_CANCELLATION = 'CAN';
 
     /**
      * Environment URLs
@@ -175,7 +178,7 @@ class Gateway
     }
 
     /**
-     * Fazer chamada recorrente para transação de captura de cartão de crédito
+     * Fazer chamada para transação de captura de cartão de crédito
      * 
      * Capture Request
      * 
@@ -226,6 +229,60 @@ class Gateway
 
 
         return $captureResponse;
+    }
+
+    /**
+     * Fazer chamada para cancelamento da transação de autorização de cartão de crédito
+     * 
+     * Authorization Cancellation Request
+     * 
+     * @param \Cobrebem\Entity\CreditCard\Cancellation\Request $cancellationRequest
+     * @return \Cobrebem\Entity\CreditCard\Cancellation\Response
+     */
+    public function cancelAuthorization(CancellationRequest $cancellationRequest)
+    {
+        $cancellationResponse = new CancellationResponse();
+        $httpClient = $this->getHttpClient($this->gatewayUrl);
+
+        $parameters = $this->gatewayHelper->buildCancellationRequestArray($cancellationRequest);
+
+        $httpRequest = $httpClient->post(static::URI_CANCELLATION)->addPostFields($parameters);
+        try {
+            $httpResponse = $httpRequest->send();
+        } catch (\Exception $e) {
+            $cancellationResponse->setSuccess(false);
+            $cancellationResponse->setHasCommunicationError(true);
+            $cancellationResponse->setCommunicationErrorMessage(CommunicationError::CONNECTION_ERROR);
+
+            return $cancellationResponse;
+        }
+
+        $cancellationResponse->setRawResponse($httpResponse->getMessage());
+        try {
+            $resultadoCap = $httpResponse->xml();
+        } catch (RuntimeException $e) {
+            $cancellationResponse->setSuccess(false);
+            $cancellationResponse->setHasCommunicationError(true);
+            $cancellationResponse->setCommunicationErrorMessage(CommunicationError::INVALID_XML_RESPONSE);
+
+            return $cancellationResponse;
+        }
+
+        $resultadoSolicitacaoCancelamento = trim((string) $resultadoCap->ResultadoSolicitacaoCancelamento);
+
+        if (substr(strtolower($resultadoSolicitacaoCancelamento), 0, 9) == 'cancelado') {
+            $cancellationResponse->setSuccess(true);
+            $parts = explode('%20', $resultadoSolicitacaoCancelamento);
+            $transacao = $parts[1];
+            $cancellationResponse->setTransacao($transacao);
+        } else {
+            $cancellationResponse->setSuccess(false);
+            $cancellationResponse->setMensagemErro($resultadoSolicitacaoCancelamento);
+        }
+        $cancellationResponse->setNsuCancelamento((string) $resultadoCap->NSUCancelamento);
+
+
+        return $cancellationResponse;
     }
 
     /**

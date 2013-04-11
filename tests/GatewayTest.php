@@ -6,6 +6,7 @@ use Cobrebem\Service\Gateway;
 use Cobrebem\Entity\CreditCard\Authorization\Request as AuthorizationRequest;
 use Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest;
 use Cobrebem\Entity\CreditCard\Capture\Request as CaptureRequest;
+use Cobrebem\Entity\CreditCard\Cancellation\Request as CancellationRequest;
 use Cobrebem\Entity\Environment;
 
 /**
@@ -37,6 +38,14 @@ class GatewayTest extends \PHPUnit_Framework_TestCase
         $captureRequest = new CaptureRequest();
         $result = $gateway->capture($captureRequest);
         $this->assertInstanceOf('\Cobrebem\Entity\CreditCard\Capture\Response', $result);
+    }
+
+    public function testCancelAuthorization()
+    {
+        $gateway = new Gateway('username', Environment::TEST_SERVER);
+        $cancellationRequest = new CancellationRequest();
+        $result = $gateway->cancelAuthorization($cancellationRequest);
+        $this->assertInstanceOf('\Cobrebem\Entity\CreditCard\Cancellation\Response', $result);
     }
 
 }

@@ -50,6 +50,27 @@ class Response
     protected $mensagemErro;
 
     /**
+     * Has Communication Error
+     * 
+     * @var boolean 
+     */
+    protected $hasCommunicationError;
+
+    /**
+     * Communication Error Message
+     * 
+     * @var string 
+     */
+    protected $communicationErrorMessage;
+
+    /**
+     * Raw HTTP Response
+     * 
+     * @var string 
+     */
+    protected $rawResponse;
+
+    /**
      * Get Sucesso
      * 
      * Successful Cancellation
@@ -144,4 +165,71 @@ class Response
         $this->mensagemErro = $mensagemErro;
         return $this;
     }
+
+    /**
+     * Get Has Communication Error
+     * 
+     * @return boolean
+     */
+    public function getHasCommunicationError()
+    {
+        return $this->hasCommunicationError;
+    }
+
+    /**
+     * Set Has Communication Error
+     * 
+     * @param boolean $hasCommunicationError
+     * @return \Cobrebem\Entity\CreditCard\Authorization\Response
+     */
+    public function setHasCommunicationError($hasCommunicationError)
+    {
+        $this->hasCommunicationError = $hasCommunicationError;
+        return $this;
+    }
+
+    /**
+     * Get Communication Error Message
+     * 
+     * @return string
+     */
+    public function getCommunicationErrorMessage()
+    {
+        return $this->communicationErrorMessage;
+    }
+
+    /**
+     * Set Communication Error Message
+     * 
+     * @param string $communicationErrorMessage
+     * @return \Cobrebem\Entity\CreditCard\Authorization\Response
+     */
+    public function setCommunicationErrorMessage($communicationErrorMessage)
+    {
+        $this->communicationErrorMessage = $communicationErrorMessage;
+        return $this;
+    }
+
+    /**
+     * Get Raw HTTP Response
+     * 
+     * @return string
+     */
+    public function getRawResponse()
+    {
+        return $this->rawResponse;
+    }
+
+    /**
+     * Set Raw HTTP Response
+     * 
+     * @param string $rawResponse Raw HTTP Response including headers
+     * @return \Cobrebem\Entity\CreditCard\Authorization\Response
+     */
+    public function setRawResponse($rawResponse)
+    {
+        $this->rawResponse = $rawResponse;
+        return $this;
+    }
+
 }

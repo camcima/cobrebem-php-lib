@@ -6,6 +6,7 @@ use Cobrebem\Entity\CreditCard\Authorization\Request as AuthorizationRequest;
 use Cobrebem\Entity\CreditCard\Authorization\RecurrentRequest;
 use Cobrebem\Entity\CreditCard\Authorization\SchedulingRequest;
 use Cobrebem\Entity\CreditCard\Capture\Request as CaptureRequest;
+use Cobrebem\Entity\CreditCard\Cancellation\Request as CancellationRequest;
 
 /**
  * Gateway Helper
@@ -160,6 +161,28 @@ class GatewayHelper
         );
         $this->insertParameter(
             $parameters, 'ValorDocumento', $this->formatCurrency($captureRequest->getValorDocumento())
+        );
+
+        return $parameters;
+    }
+
+    /**
+     * Build Authorization Cancellation Request Parameters Array
+     * 
+     * @param \Cobrebem\Entity\CreditCard\Cancellation\Request $cancellationRequest
+     * @return array
+     */
+    public function buildCancellationRequestArray(CancellationRequest $cancellationRequest)
+    {
+        $parameters = array();
+        $this->insertParameter(
+            $parameters, 'NumeroDocumento', $cancellationRequest->getNumeroDocumento(), false
+        );
+        $this->insertParameter(
+            $parameters, 'Transacao', $cancellationRequest->getTransacao()
+        );
+        $this->insertParameter(
+            $parameters, 'ValorDocumento', $this->formatCurrency($cancellationRequest->getValorDocumento())
         );
 
         return $parameters;
